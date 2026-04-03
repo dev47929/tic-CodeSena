@@ -4,6 +4,7 @@ import './App.css'
 import Landing from './Components/public/Landing'
 import Login from './Components/public/Login'
 import Signup from './Components/public/Signup'
+import Dashboard from './Components/Dashbaord/Dashboard'
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </Router>
   )
