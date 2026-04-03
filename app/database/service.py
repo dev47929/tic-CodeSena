@@ -1,0 +1,95 @@
+#app/database/service.py
+import hashlib
+from app.database.models import User
+from app.database.db import SessionLocal
+from fastapi import HTTPException
+from app.database.getuser import get_user , get_user_v2
+
+def simple_hash(password: str) -> str:
+    return hashlib.sha256(password.encode("utf-8")).hexdigest()
+
+def verify_hash(password: str, stored_hash: str) -> bool:
+    return simple_hash(password) == stored_hash
+
+def create_user(email: str, password: str, handle: str, name: str = None, phone: str = None ) :
+    with SessionLocal() as db:
+        user = User(
+            email=email,
+            handle = handle.strip().lower(),
+            name=name,
+            phone=phone,
+            password_hash=simple_hash(password)
+        )
+        db.add(user)
+        db.commit()
+        return True
+    
+def authenticate_user(password: str , id : int = None,email : str = None , handle: str =None):
+    with SessionLocal() as db:
+        if id :
+            user = get_user(id=id)
+        elif email:
+            user = get_user_v2(email=email)
+        elif handle:
+            user = get_user_v2(handle=handle)
+
+        if not user:
+            return HTTPException(status_code=404, detail="User not found")
+        if not verify_hash(password, user["password_hash"]):
+            return HTTPException(status_code=401, detail="Invalid password")
+        
+        return user
+    
+def activate_user(id: int, status: bool):
+    with SessionLocal() as db:
+        user = get_user(id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        db.query(User).filter(User.id == id).update({"is_active": status})
+        db.commit()
+        return {"Status": "Success"}
+
+def suspend_user(id: int, status: bool):
+    with SessionLocal() as db:
+        user = get_user(id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        db.query(User).filter(User.id == id).update({"is_suspended": status})
+        db.commit()
+        return {"Status": "Success"}
+
+def email_verified(id: int, status: bool):
+    with SessionLocal() as db:
+        user = get_user(id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        db.query(User).filter(User.id == id).update({"is_email_verified": status})
+        db.commit()
+        return {"Status": "Success"}
+    
+def phone_verified(id: int, status: bool):
+    with SessionLocal() as db:
+        user = get_user(id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        db.query(User).filter(User.id == id).update({"is_phone_verified": status})
+        db.commit()
+        return {"Status": "Success"}
+    
+def set_bio(id: int, bio: str):
+    with SessionLocal() as db:
+        user = get_user(id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        db.query(User).filter(User.id == id).update({"bio": bio})
+        db.commit()
+        return {"Status": "Success"}
+
+def set_avatar(id: int, avatar_url: str):
+    with SessionLocal() as db:
+        user = get_user(id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        db.query(User).filter(User.id == id).update({"avatar_url": avatar_url})
+        db.commit()
+        return {"Status": "Success"}
