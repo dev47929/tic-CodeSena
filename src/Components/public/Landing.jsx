@@ -7,7 +7,17 @@ import {
 } from 'lucide-react';
 import CardSwap, { Card } from '../ui/CardSwap';
 import BorderGlow from '../Generic/BorderGlow';
+import DomeGallery from '../Generic/DomeGallery';
 
+const galleryImages = [
+    { src: 'https://images.unsplash.com/photo-1573497620053-ea5300f94f21?auto=format&fit=crop&w=800&q=80', alt: 'Therapy Session' },
+    { src: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80', alt: 'Community' },
+    { src: 'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=800&q=80', alt: 'Freelancing' },
+    { src: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=800&q=80', alt: 'Gov Schemes' },
+    { src: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80', alt: 'Empowerment' },
+    { src: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80', alt: 'Career' },
+    { src: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=800&q=80', alt: 'Network' }
+];
 
 
 /* ─── Feature pill card (below hero) ────────────── */
@@ -478,140 +488,118 @@ export default function Landing() {
           DAILY GOAL SECTION
       ══════════════════════════════════════════ */}
             <section style={{
-                background: '#faf6fb',
-                padding: '96px 32px',
+                background: '#ecd2e2',
+                minHeight: 'calc(100vh - 80px)',
+                display: 'flex',
                 position: 'relative',
                 overflow: 'hidden',
             }}>
-                <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-                    <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: '1fr 1fr',
-                        gap: 80,
-                        alignItems: 'center',
-                    }}>
-                        {/* Left — stacked images */}
-                        <motion.div
-                            initial={{ opacity: 0, x: -30 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            style={{ display: 'flex', alignItems: 'center', gap: 24, justifyContent: 'flex-start' }}
-                        >
-                            <div style={{ position: 'relative' }}>
-                                <img
-                                    src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400"
-                                    alt="Woman working"
-                                    style={{ width: 190, height: 280, borderRadius: 40, objectFit: 'cover', boxShadow: '0 20px 60px rgba(0,0,0,0.15)', transform: 'rotate(-6deg)' }}
-                                    referrerPolicy="no-referrer"
-                                />
-                                <div style={{
-                                    position: 'absolute', bottom: -12, right: -12,
-                                    background: 'white', padding: 12, borderRadius: 16,
-                                    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                                }}>
-                                    <Brain size={22} color="#c47ea8" />
-                                </div>
-                            </div>
-                            <div style={{ position: 'relative', marginTop: 72 }}>
-                                <img
-                                    src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&q=80&w=400"
-                                    alt="Women community"
-                                    style={{ width: 190, height: 280, borderRadius: 40, objectFit: 'cover', boxShadow: '0 20px 60px rgba(0,0,0,0.15)', transform: 'rotate(6deg)' }}
-                                    referrerPolicy="no-referrer"
-                                />
-                                <div style={{
-                                    position: 'absolute', top: -12, left: -12,
-                                    background: 'white', padding: 12, borderRadius: 16,
-                                    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                                }}>
-                                    <Heart size={22} color="#9b7ec8" />
-                                </div>
-                            </div>
-                        </motion.div>
+                {/* Left — Full Bleed Dome Gallery Container */}
+                <div style={{ width: '50%', position: 'relative' }}>
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        viewport={{ once: true }}
+                        style={{ position: 'absolute', inset: 0 }}
+                    >
+                        <DomeGallery 
+                            images={galleryImages}
+                            overlayBlurColor="#ecd2e2"
+                            grayscale={false}
+                        />
+                    </motion.div>
+                </div>
 
-                        {/* Right — content */}
-                        <motion.div
-                            initial={{ opacity: 0, x: 30 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: 0.15 }}
-                        >
-                            <h2 style={{
-                                fontFamily: "'Playfair Display', Georgia, serif",
-                                fontWeight: 700,
-                                fontSize: 'clamp(32px, 4vw, 52px)',
-                                color: '#1a1025',
-                                letterSpacing: '-0.5px',
-                                marginBottom: 36,
-                            }}>
-                                Daily wellness goal
-                            </h2>
+                {/* Right — Content */}
+                <div style={{
+                    width: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '64px 8%'
+                }}>
+                    <motion.div
+                        initial={{ opacity: 0, x: 30 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.15 }}
+                        style={{ maxWidth: 500, width: '100%' }}
+                    >
+                        <h2 style={{
+                            fontFamily: "'Playfair Display', Georgia, serif",
+                            fontWeight: 700,
+                            fontSize: 'clamp(32px, 4vw, 52px)',
+                            color: '#1a1025',
+                            letterSpacing: '-0.5px',
+                            marginBottom: 36,
+                        }}>
+                            Daily wellness goal
+                        </h2>
 
-                            {/* Animated ring card */}
-                            <div style={{
-                                background: 'linear-gradient(135deg, #F5C2D4 0%, #D8C7F5 100%)',
-                                borderRadius: 40,
-                                padding: 48,
-                                marginBottom: 24,
-                                cursor: 'pointer',
-                                position: 'relative',
-                                overflow: 'hidden',
-                            }}>
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                    <div style={{ position: 'relative', width: 160, height: 160, marginBottom: 20 }}>
-                                        <svg style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }} viewBox="0 0 100 100">
-                                            <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="9" />
-                                            <motion.circle
-                                                initial={{ strokeDasharray: '0 264' }}
-                                                whileInView={{ strokeDasharray: '198 264' }}
-                                                viewport={{ once: true }}
-                                                transition={{ duration: 1.6, ease: 'easeOut' }}
-                                                cx="50" cy="50" r="42"
-                                                fill="none"
-                                                stroke="white"
-                                                strokeWidth="9"
-                                                strokeLinecap="round"
-                                            />
-                                        </svg>
-                                        <div style={{
-                                            position: 'absolute', inset: 0,
-                                            display: 'flex', flexDirection: 'column',
-                                            alignItems: 'center', justifyContent: 'center',
-                                        }}>
-                                            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.65)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 2 }}>Score</span>
-                                            <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 52, fontWeight: 700, color: 'white', lineHeight: 1 }}>75</span>
-                                        </div>
-                                    </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'white', fontWeight: 700, fontSize: 15 }}>
-                                        View details <ChevronRight size={16} />
+                        {/* Animated ring card */}
+                        <div style={{
+                            background: 'linear-gradient(135deg, #F5C2D4 0%, #D8C7F5 100%)',
+                            borderRadius: 40,
+                            padding: 48,
+                            marginBottom: 24,
+                            cursor: 'pointer',
+                            position: 'relative',
+                            overflow: 'hidden',
+                        }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                <div style={{ position: 'relative', width: 160, height: 160, marginBottom: 20 }}>
+                                    <svg style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }} viewBox="0 0 100 100">
+                                        <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="9" />
+                                        <motion.circle
+                                            initial={{ strokeDasharray: '0 264' }}
+                                            whileInView={{ strokeDasharray: '198 264' }}
+                                            viewport={{ once: true }}
+                                            transition={{ duration: 1.6, ease: 'easeOut' }}
+                                            cx="50" cy="50" r="42"
+                                            fill="none"
+                                            stroke="white"
+                                            strokeWidth="9"
+                                            strokeLinecap="round"
+                                        />
+                                    </svg>
+                                    <div style={{
+                                        position: 'absolute', inset: 0,
+                                        display: 'flex', flexDirection: 'column',
+                                        alignItems: 'center', justifyContent: 'center',
+                                    }}>
+                                        <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.65)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 2 }}>Score</span>
+                                        <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 52, fontWeight: 700, color: 'white', lineHeight: 1 }}>75</span>
                                     </div>
                                 </div>
-                                <div style={{ position: 'absolute', top: 20, right: 20, width: 8, height: 8, background: 'white', borderRadius: '50%' }} className="animate-pulse" />
-                                <div style={{ position: 'absolute', bottom: 20, left: 20, width: 12, height: 12, background: 'rgba(255,255,255,0.45)', borderRadius: '50%' }} className="animate-pulse" />
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'white', fontWeight: 700, fontSize: 15 }}>
+                                    View details <ChevronRight size={16} />
+                                </div>
                             </div>
+                            <div style={{ position: 'absolute', top: 20, right: 20, width: 8, height: 8, background: 'white', borderRadius: '50%' }} className="animate-pulse" />
+                            <div style={{ position: 'absolute', bottom: 20, left: 20, width: 12, height: 12, background: 'rgba(255,255,255,0.45)', borderRadius: '50%' }} className="animate-pulse" />
+                        </div>
 
-                            {/* Tip card */}
-                            <div style={{
-                                background: 'rgba(245,194,212,0.15)',
-                                borderRadius: 28,
-                                padding: 28,
-                                border: '1px solid rgba(245,194,212,0.5)',
-                                display: 'flex',
-                                gap: 20,
-                                alignItems: 'flex-start',
-                            }}>
-                                <div style={{ background: 'white', padding: 10, borderRadius: 14, flexShrink: 0, boxShadow: '0 2px 10px rgba(0,0,0,0.07)' }}>
-                                    <Zap size={18} color="#c47ea8" />
-                                </div>
-                                <div>
-                                    <p style={{ fontSize: 11, fontWeight: 700, color: '#c47ea8', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>Daily Inspiration</p>
-                                    <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, color: '#4a3f5c', lineHeight: 1.55, fontStyle: 'italic' }}>
-                                        "Every woman carries within her the power to reshape the world."
-                                    </p>
-                                </div>
+                        {/* Tip card */}
+                        <div style={{
+                            background: 'rgba(245,194,212,0.15)',
+                            borderRadius: 28,
+                            padding: 28,
+                            border: '1px solid rgba(245,194,212,0.5)',
+                            display: 'flex',
+                            gap: 20,
+                            alignItems: 'flex-start',
+                        }}>
+                            <div style={{ background: 'white', padding: 10, borderRadius: 14, flexShrink: 0, boxShadow: '0 2px 10px rgba(0,0,0,0.07)' }}>
+                                <Zap size={18} color="#c47ea8" />
                             </div>
-                        </motion.div>
-                    </div>
+                            <div>
+                                <p style={{ fontSize: 11, fontWeight: 700, color: '#c47ea8', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>Daily Inspiration</p>
+                                <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, color: '#4a3f5c', lineHeight: 1.55, fontStyle: 'italic' }}>
+                                    "Every woman carries within her the power to reshape the world."
+                                </p>
+                            </div>
+                        </div>
+                    </motion.div>
                 </div>
             </section>
 

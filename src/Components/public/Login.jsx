@@ -1,16 +1,48 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Mail, Lock, ArrowRight } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
 import BorderGlow from '../Generic/BorderGlow';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Login() {
     const [credentials, setCredentials] = useState({ email: '', password: '' });
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Mock login
-        console.log("Login submitted", credentials);
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await fetch("https://app.totalchaos.online/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    identifier: credentials.email,
+                    password: credentials.password
+                })
+            });
+            
+            if (!response.ok) {
+                const text = await response.text();
+                throw new Error("Login failed: " + text);
+            }
+
+            const data = await response.json();
+            console.log("Login successful", data);
+
+            // Redirect to dashboard or landing logic here
+            navigate('/');
+        } catch (err) {
+            console.error(err);
+            setError(err.message || 'An error occurred during login');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -51,11 +83,11 @@ export default function Login() {
                     animated={true}
                     className="w-full rounded-[2rem] shadow-2xl overflow-hidden hover:-translate-y-1 transition-transform duration-500"
                 >
-                    <div style={{ 
-                        padding: '48px 36px', 
-                        background: 'rgba(255,255,255,0.7)', 
-                        backdropFilter: 'blur(16px)', 
-                        height: '100%' 
+                    <div style={{
+                        padding: '48px 36px',
+                        background: 'rgba(255,255,255,0.7)',
+                        backdropFilter: 'blur(16px)',
+                        height: '100%'
                     }}>
                         <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 32, fontWeight: 700, color: '#2d1f3d', marginBottom: '8px', textAlign: 'center', letterSpacing: '-0.5px' }}>
                             Welcome back
@@ -69,7 +101,7 @@ export default function Login() {
                                 <label style={{ display: 'block', fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: 600, color: '#4a3f5c', marginBottom: 8 }}>Email Address</label>
                                 <div style={{ position: 'relative' }}>
                                     <Mail size={18} color="#9b8ba9" style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)' }} />
-                                    <input 
+                                    <input
                                         type="email"
                                         required
                                         placeholder="you@example.com"
@@ -79,11 +111,11 @@ export default function Login() {
                                             background: '#ffffff', fontFamily: "'Inter', sans-serif", fontSize: 15,
                                             color: '#2d1f3d', outline: 'none', transition: 'border-color 0.2s'
                                         }}
-                                        onChange={e => setCredentials({...credentials, email: e.target.value})}
+                                        onChange={e => setCredentials({ ...credentials, email: e.target.value })}
                                     />
                                 </div>
                             </div>
-                            
+
                             <div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                                     <label style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: 600, color: '#4a3f5c' }}>Password</label>
@@ -91,7 +123,7 @@ export default function Login() {
                                 </div>
                                 <div style={{ position: 'relative' }}>
                                     <Lock size={18} color="#9b8ba9" style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)' }} />
-                                    <input 
+                                    <input
                                         type="password"
                                         required
                                         placeholder="••••••••"
@@ -101,23 +133,30 @@ export default function Login() {
                                             background: '#ffffff', fontFamily: "'Inter', sans-serif", fontSize: 15,
                                             color: '#2d1f3d', outline: 'none'
                                         }}
-                                        onChange={e => setCredentials({...credentials, password: e.target.value})}
+                                        onChange={e => setCredentials({ ...credentials, password: e.target.value })}
                                     />
                                 </div>
                             </div>
 
+                            {error && (
+                                <div style={{ color: '#e03131', fontSize: 14, fontFamily: "'Inter', sans-serif", textAlign: 'center', background: '#ffe3e3', padding: '10px', borderRadius: '8px', border: '1px solid #ffa8a8', marginTop: 4 }}>
+                                    {error}
+                                </div>
+                            )}
+
                             <button
                                 type="submit"
+                                disabled={loading}
                                 style={{
-                                    marginTop: '12px', width: '100%', background: '#2d1f3d', color: '#ffffff',
+                                    marginTop: '8px', width: '100%', background: '#2d1f3d', color: '#ffffff',
                                     borderRadius: '99px', padding: '16px', fontFamily: "'Inter', sans-serif", fontSize: 15, fontWeight: 600,
-                                    border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px',
-                                    transition: 'background 0.2s'
+                                    border: 'none', cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px',
+                                    transition: 'background 0.2s', opacity: loading ? 0.7 : 1
                                 }}
-                                onMouseEnter={e => e.currentTarget.style.background = '#1a1025'}
-                                onMouseLeave={e => e.currentTarget.style.background = '#2d1f3d'}
+                                onMouseEnter={e => !loading && (e.currentTarget.style.background = '#1a1025')}
+                                onMouseLeave={e => !loading && (e.currentTarget.style.background = '#2d1f3d')}
                             >
-                                Sign In <ArrowRight size={18} />
+                                {loading ? <Loader2 size={18} className="animate-spin" /> : <>Sign In <ArrowRight size={18} /></>}
                             </button>
                         </form>
 
