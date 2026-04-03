@@ -1,110 +1,56 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
+import { useNavigate } from 'react-router-dom';
 import {
     Star, Menu, X, Heart, Brain, Users, Briefcase, Landmark,
     Activity, Zap, CheckCircle, ArrowRight, ChevronRight, Sparkles, Shield
 } from 'lucide-react';
 import CardSwap, { Card } from '../ui/CardSwap';
+import BorderGlow from '../Generic/BorderGlow';
 
-/* ─── QR Code SVG placeholder ───────────────────── */
-const QRCode = () => (
-    <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-        {/* Top-left finder */}
-        <rect x="4" y="4" width="24" height="24" rx="3" fill="#1a1025" />
-        <rect x="8" y="8" width="16" height="16" rx="2" fill="white" />
-        <rect x="11" y="11" width="10" height="10" rx="1" fill="#1a1025" />
-        {/* Top-right finder */}
-        <rect x="52" y="4" width="24" height="24" rx="3" fill="#1a1025" />
-        <rect x="56" y="8" width="16" height="16" rx="2" fill="white" />
-        <rect x="59" y="11" width="10" height="10" rx="1" fill="#1a1025" />
-        {/* Bottom-left finder */}
-        <rect x="4" y="52" width="24" height="24" rx="3" fill="#1a1025" />
-        <rect x="8" y="56" width="16" height="16" rx="2" fill="white" />
-        <rect x="11" y="59" width="10" height="10" rx="1" fill="#1a1025" />
-        {/* Data modules */}
-        <rect x="32" y="4" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="38" y="4" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="44" y="4" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="32" y="10" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="44" y="10" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="38" y="16" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="32" y="22" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="44" y="22" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="4" y="32" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="10" y="32" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="16" y="32" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="22" y="32" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="32" y="32" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="38" y="32" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="44" y="32" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="50" y="32" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="56" y="32" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="68" y="32" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="74" y="32" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="4" y="38" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="16" y="38" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="32" y="38" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="44" y="38" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="56" y="38" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="62" y="38" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="74" y="38" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="4" y="44" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="10" y="44" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="22" y="44" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="32" y="44" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="50" y="44" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="62" y="44" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="68" y="44" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="32" y="50" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="38" y="50" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="56" y="50" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="62" y="50" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="74" y="50" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="32" y="56" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="44" y="56" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="50" y="56" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="68" y="56" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="32" y="62" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="38" y="62" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="56" y="62" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="62" y="62" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="74" y="62" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="32" y="68" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="44" y="68" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="50" y="68" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="56" y="68" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="68" y="68" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="32" y="74" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="38" y="74" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="50" y="74" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="62" y="74" width="4" height="4" rx="0.5" fill="#1a1025" />
-        <rect x="74" y="74" width="4" height="4" rx="0.5" fill="#1a1025" />
-    </svg>
-);
+
 
 /* ─── Feature pill card (below hero) ────────────── */
-const FeatureCard = ({ icon: Icon, title, color, delay }) => (
+const FeatureCard = ({ icon: Icon, title, image, glowHSL, delay }) => (
     <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay }}
-        className={`${color} rounded-[1.75rem] p-5 flex flex-col items-center justify-center text-center aspect-square cursor-pointer group hover:scale-105 transition-transform duration-300`}
+        className="w-full flex"
     >
-        <div className="bg-white/50 p-2.5 rounded-xl mb-2.5 group-hover:scale-110 transition-transform">
-            <Icon className="w-6 h-6 text-[#2d1f3d]" />
-        </div>
-        <p className="text-[#2d1f3d] font-semibold text-sm leading-tight">{title}</p>
+        <BorderGlow
+            backgroundColor="#ffffff"
+            glowColor={glowHSL}
+            animated={true}
+            className="w-full aspect-square rounded-[1.75rem] cursor-pointer group hover:-translate-y-2 transition-transform duration-400 shadow-sm hover:shadow-xl relative overflow-hidden"
+        >
+            {/* Background Image */}
+            <div 
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                style={{ backgroundImage: `url(${image})` }}
+            />
+            {/* Light Overlay for Readability */}
+            <div className="absolute inset-0 bg-white/50 backdrop-blur-[2px] group-hover:bg-white/30 transition-colors duration-500" />
+            
+            <div className="flex flex-col items-center justify-center p-6 h-full w-full text-center relative z-10">
+                <div className="bg-white/80 backdrop-blur-md p-4 rounded-xl mb-4 group-hover:scale-110 transition-transform shadow-sm">
+                    <Icon className="w-8 h-8 text-[#2d1f3d]" />
+                </div>
+                <p className="text-[#2d1f3d] font-bold text-xl leading-tight drop-shadow-sm">{title}</p>
+            </div>
+        </BorderGlow>
     </motion.div>
 );
 
 export default function Landing() {
     const [mobileOpen, setMobileOpen] = useState(false);
+    const navigate = useNavigate();
 
     const features = [
-        { icon: Brain, title: 'AI Therapist', color: 'bg-[#F5C2D4]' },
-        { icon: Users, title: 'Community', color: 'bg-[#D8C7F5]' },
-        { icon: Briefcase, title: 'Freelancing', color: 'bg-[#F5DFC2]' },
-        { icon: Landmark, title: 'Gov Schemes', color: 'bg-[#C2F0DF]' },
+        { icon: Brain, title: 'AI Therapist', image: 'https://images.unsplash.com/photo-1573497620053-ea5300f94f21?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', glowHSL: '330 80 70' },
+        { icon: Users, title: 'Community', image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', glowHSL: '330 80 70' },
+        { icon: Briefcase, title: 'Freelancing', image: 'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', glowHSL: '330 80 70' },
+        { icon: Landmark, title: 'Gov Schemes', image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=800&q=80', glowHSL: '330 80 70' },
     ];
 
     return (
@@ -322,6 +268,7 @@ export default function Landing() {
                                 }}
                                 onMouseEnter={e => { e.currentTarget.style.background = '#1a1025'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(45,31,61,0.3)'; }}
                                 onMouseLeave={e => { e.currentTarget.style.background = '#2d1f3d'; e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
+                                onClick={() => navigate('/signup')}
                             >
                                 Get Started
                             </button>
@@ -341,6 +288,7 @@ export default function Landing() {
                                 }}
                                 onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.9)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
                                 onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.7)'; e.currentTarget.style.transform = 'none'; }}
+                                onClick={() => navigate('/login')}
                             >
                                 Already a User? Login
                             </button>
@@ -466,8 +414,17 @@ export default function Landing() {
             {/* ══════════════════════════════════════════
           FEATURES STRIP (4 cards below hero)
       ══════════════════════════════════════════ */}
-            <section style={{ background: 'white', padding: '64px 32px' }}>
-                <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+            <section style={{ 
+                position: 'relative',
+                padding: '80px 32px',
+                backgroundImage: 'url(/feature-bg.png)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+            }}>
+                {/* Light overlay to soften the heavy pink texture somewhat so text remains legible */}
+                <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.2)', pointerEvents: 'none' }} />
+                
+                <div style={{ maxWidth: 1200, margin: '0 auto', position: 'relative', zIndex: 10 }}>
                     <motion.p
                         initial={{ opacity: 0, y: 12 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -505,9 +462,9 @@ export default function Landing() {
 
                     <div style={{
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                        gap: 20,
-                        maxWidth: 900,
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                        gap: 32,
+                        maxWidth: 1100,
                         margin: '0 auto',
                     }}>
                         {features.map((f, i) => (
