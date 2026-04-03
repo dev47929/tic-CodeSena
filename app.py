@@ -1,5 +1,5 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
-from transformers import AutoImageProcessor, AutoModelForImageClassification
+from transformers import AutoImageProcessor, AutoModelForImageClassification, AutoProcessor
 import PIL.Image
 import io
 import torch
@@ -17,8 +17,11 @@ if hf_token:
 app = FastAPI()
 
 # Load model and processor at startup
-processor = AutoImageProcessor.from_pretrained("rizvandwiki/gender-classification")
-model = AutoModelForImageClassification.from_pretrained("rizvandwiki/gender-classification")
+# processor = AutoImageProcessor.from_pretrained("rizvandwiki/gender-classification")
+# model = AutoModelForImageClassification.from_pretrained("rizvandwiki/gender-classification")
+
+processor = AutoImageProcessor.from_pretrained("prithivMLmods/Realistic-Gender-Classification")
+model = AutoModelForImageClassification.from_pretrained("prithivMLmods/Realistic-Gender-Classification")
 
 @app.post("/classify")
 async def classify_gender(file: UploadFile = File(...)):
