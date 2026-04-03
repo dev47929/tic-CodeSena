@@ -1,5 +1,6 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
-from transformers import AutoImageProcessor, AutoModelForImageClassification, AutoProcessor
+from fastapi.middleware.cors import CORSMiddleware
+from transformers import AutoImageProcessor, AutoModelForImageClassification
 import PIL.Image
 import io
 import torch
@@ -16,12 +17,23 @@ if hf_token:
 
 app = FastAPI()
 
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Load model and processor at startup
-# processor = AutoImageProcessor.from_pretrained("rizvandwiki/gender-classification")
-# model = AutoModelForImageClassification.from_pretrained("rizvandwiki/gender-classification")
 
 processor = AutoImageProcessor.from_pretrained("prithivMLmods/Realistic-Gender-Classification")
 model = AutoModelForImageClassification.from_pretrained("prithivMLmods/Realistic-Gender-Classification")
+
+@app.get("/")
+async def root():
+    return {"message": "Gender Classification API - POST image to /classify endpoint"}
 
 @app.post("/classify")
 async def classify_gender(file: UploadFile = File(...)):
@@ -45,3 +57,8 @@ async def classify_gender(file: UploadFile = File(...)):
         return {"gender": gender, "confidence": confidence}
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error processing image: {str(e)}")
+
+# For local development
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
