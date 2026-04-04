@@ -40,6 +40,7 @@ function animateValue({ start = 0, end = 100, duration = 1000, delay = 0, ease =
 const GRADIENT_POSITIONS = ['80% 55%', '69% 34%', '8% 6%', '41% 38%', '86% 85%', '82% 18%', '51% 4%'];
 const COLOR_MAP = [0, 1, 2, 0, 1, 2, 1];
 
+
 function buildMeshGradients(colors) {
   const gradients = [];
   for (let i = 0; i < 7; i++) {
@@ -63,6 +64,7 @@ const BorderGlow = ({
   animated = false,
   colors = ['#c084fc', '#f472b6', '#38bdf8'],
   fillOpacity = 0.5,
+  style = {},
 }) => {
   const cardRef = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -152,7 +154,7 @@ const BorderGlow = ({
         background: backgroundColor,
         borderRadius: `${borderRadius}px`,
         transform: 'translate3d(0, 0, 0.01px)',
-        boxShadow: 'rgba(0,0,0,0.1) 0 1px 2px, rgba(0,0,0,0.1) 0 2px 4px, rgba(0,0,0,0.1) 0 4px 8px, rgba(0,0,0,0.1) 0 8px 16px, rgba(0,0,0,0.1) 0 16px 32px, rgba(0,0,0,0.1) 0 32px 64px',
+        ...style,
       }}
     >
       {/* mesh gradient border */}

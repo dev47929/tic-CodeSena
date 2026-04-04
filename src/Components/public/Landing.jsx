@@ -32,7 +32,11 @@ const FeatureCard = ({ icon: Icon, title, image, glowHSL, delay }) => (
             backgroundColor="#ffffff"
             glowColor={glowHSL}
             animated={true}
-            className="w-full aspect-square rounded-[1.75rem] cursor-pointer group hover:-translate-y-2 transition-transform duration-400 shadow-sm hover:shadow-xl relative overflow-hidden"
+            glowIntensity={3.0}
+            glowRadius={60}
+            edgeSensitivity={5}
+            fillOpacity={0.8}
+            className="w-full aspect-square rounded-[1.75rem] cursor-pointer group hover:-translate-y-2 transition-all duration-500 shadow-[0_0_30px_5px_rgba(196,126,168,0.15)] hover:shadow-[0_0_140px_60px_rgba(196,126,168,0.5)] relative"
         >
             {/* Background Image */}
             <div 
@@ -53,8 +57,8 @@ const FeatureCard = ({ icon: Icon, title, image, glowHSL, delay }) => (
 );
 
 export default function Landing() {
-    const [mobileOpen, setMobileOpen] = useState(false);
     const navigate = useNavigate();
+    const [mobileOpen, setMobileOpen] = useState(false);
 
     const features = [
         { icon: Brain, title: 'AI Therapist', image: 'https://images.unsplash.com/photo-1573497620053-ea5300f94f21?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', glowHSL: '330 80 70' },
@@ -65,20 +69,20 @@ export default function Landing() {
 
     return (
         <div className="min-h-screen bg-white">
-
-            {/* ══════════════════════════════════════════
-          NAVBAR
-      ══════════════════════════════════════════ */}
-            <nav
-                style={{
-                    background: 'rgba(255,255,255,0.96)',
-                    backdropFilter: 'blur(12px)',
-                    borderBottom: '1px solid rgba(0,0,0,0.07)',
-                    position: 'sticky',
-                    top: 0,
-                    zIndex: 50,
-                }}
-            >
+ 
+             {/* ══════════════════════════════════════════
+           NAVBAR
+       ══════════════════════════════════════════ */}
+             <nav
+                 style={{
+                     background: 'rgba(255,255,255,0.96)',
+                     backdropFilter: 'blur(12px)',
+                     borderBottom: '1px solid rgba(0,0,0,0.07)',
+                     position: 'sticky',
+                     top: 0,
+                     zIndex: 50,
+                 }}
+             >
                 <div
                     style={{
                         maxWidth: 1200,
@@ -111,48 +115,65 @@ export default function Landing() {
 
                     {/* Nav links */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 28, flex: 1 }} className="hidden md:flex">
-                        {['About', 'Blog', 'How It Works'].map(link => (
-                            <a
-                                key={link}
-                                href="#"
-                                style={{
-                                    fontFamily: "'Inter', sans-serif",
-                                    fontSize: 14,
-                                    fontWeight: 500,
-                                    color: '#6b6278',
-                                    textDecoration: 'none',
-                                    transition: 'color 0.2s',
-                                }}
-                                onMouseEnter={e => e.target.style.color = '#1a1025'}
-                                onMouseLeave={e => e.target.style.color = '#6b6278'}
-                            >
-                                {link}
-                            </a>
-                        ))}
+                        <a
+                            href="/about"
+                            onClick={(e) => { e.preventDefault(); navigate('/about'); }}
+                            style={{
+                                fontFamily: "'Inter', sans-serif",
+                                fontSize: 14,
+                                fontWeight: 500,
+                                color: '#6b6278',
+                                textDecoration: 'none',
+                                transition: 'color 0.2s',
+                            }}
+                            onMouseEnter={e => e.target.style.color = '#1a1025'}
+                            onMouseLeave={e => e.target.style.color = '#6b6278'}
+                        >
+                            About
+                        </a>
                     </div>
 
-                    {/* Get Started */}
-                    <button
-                        style={{
-                            marginLeft: 'auto',
-                            background: '#2d1f3d',
-                            color: '#fff',
-                            border: 'none',
-                            borderRadius: 999,
-                            padding: '10px 24px',
-                            fontFamily: "'Inter', sans-serif",
-                            fontWeight: 600,
-                            fontSize: 14,
-                            cursor: 'pointer',
-                            transition: 'background 0.2s, transform 0.15s',
-                            flexShrink: 0,
-                        }}
-                        onMouseEnter={e => { e.target.style.background = '#1a1025'; e.target.style.transform = 'translateY(-1px)'; }}
-                        onMouseLeave={e => { e.target.style.background = '#2d1f3d'; e.target.style.transform = 'none'; }}
-                        className="hidden md:block"
-                    >
-                        Login
-                    </button>
+                    {/* CTA Buttons */}
+                    <div style={{ marginLeft: 'auto', display: 'flex', gap: 12, alignItems: 'center' }} className="hidden md:flex">
+                        <button
+                            style={{
+                                background: 'transparent',
+                                color: '#2d1f3d',
+                                border: '1.5px solid rgba(45,31,61,0.12)',
+                                borderRadius: 999,
+                                padding: '8px 20px',
+                                fontFamily: "'Inter', sans-serif",
+                                fontWeight: 600,
+                                fontSize: 14,
+                                cursor: 'pointer',
+                                transition: 'background 0.2s, transform 0.15s',
+                            }}
+                            onMouseEnter={e => { e.target.style.background = 'rgba(45,31,61,0.04)'; e.target.style.transform = 'translateY(-1px)'; }}
+                            onMouseLeave={e => { e.target.style.background = 'transparent'; e.target.style.transform = 'none'; }}
+                            onClick={() => navigate('/login')}
+                        >
+                            Login
+                        </button>
+                        <button
+                            style={{
+                                background: '#2d1f3d',
+                                color: '#fff',
+                                border: '1.5px solid #2d1f3d',
+                                borderRadius: 999,
+                                padding: '8px 20px',
+                                fontFamily: "'Inter', sans-serif",
+                                fontWeight: 600,
+                                fontSize: 14,
+                                cursor: 'pointer',
+                                transition: 'background 0.2s, transform 0.15s',
+                            }}
+                            onMouseEnter={e => { e.target.style.background = '#1a1025'; e.target.style.transform = 'translateY(-1px)'; }}
+                            onMouseLeave={e => { e.target.style.background = '#2d1f3d'; e.target.style.transform = 'none'; }}
+                            onClick={() => navigate('/signup')}
+                        >
+                            Signup
+                        </button>
+                    </div>
 
                     {/* Mobile menu toggle */}
                     <button
@@ -171,16 +192,28 @@ export default function Landing() {
                         borderTop: '1px solid rgba(0,0,0,0.06)',
                         display: 'flex', flexDirection: 'column', gap: 12,
                     }}>
-                        {['About', 'Blog', 'How It Works'].map(link => (
-                            <a key={link} href="#" style={{ color: '#4a3f5c', fontWeight: 500, fontSize: 15, textDecoration: 'none' }}>{link}</a>
-                        ))}
-                        <button style={{
-                            marginTop: 8, background: '#2d1f3d', color: '#fff',
-                            border: 'none', borderRadius: 999, padding: '12px 0',
-                            fontWeight: 600, fontSize: 15, cursor: 'pointer',
-                        }}>
-                            Get Started
-                        </button>
+                        <a href="/about" onClick={(e) => { e.preventDefault(); navigate('/about'); setMobileOpen(false); }} style={{ color: '#4a3f5c', fontWeight: 500, fontSize: 15, textDecoration: 'none' }}>About</a>
+                        
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
+                            <button 
+                                onClick={() => { navigate('/login'); setMobileOpen(false); }}
+                                style={{
+                                    background: 'transparent', color: '#2d1f3d',
+                                    border: '1.5px solid rgba(45,31,61,0.12)', borderRadius: 999, padding: '12px 0',
+                                    fontWeight: 600, fontSize: 15, cursor: 'pointer',
+                                }}>
+                                Login
+                            </button>
+                            <button 
+                                onClick={() => { navigate('/signup'); setMobileOpen(false); }}
+                                style={{
+                                    background: '#2d1f3d', color: '#fff',
+                                    border: 'none', borderRadius: 999, padding: '12px 0',
+                                    fontWeight: 600, fontSize: 15, cursor: 'pointer',
+                                }}>
+                                Signup
+                            </button>
+                        </div>
                     </div>
                 )}
             </nav>
