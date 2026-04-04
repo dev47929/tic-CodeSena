@@ -5,6 +5,7 @@ import Landing from './Components/public/Landing'
 import Login from './Components/public/Login'
 import Signup from './Components/public/Signup'
 import Dashboard from './Components/Dashbaord/Dashboard'
+import About from './Components/public/About'
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/about" element={<About />} />
       </Routes>
     </Router>
   )
