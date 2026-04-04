@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import FileResponse
 from app.schemas.models import AdminCreateUser, AdminUpdateRequest
 from control import admin as admin
-from auth.dependencies import require_role
+from app.auth.deps import require_role
 
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
