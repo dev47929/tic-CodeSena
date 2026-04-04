@@ -37,7 +37,8 @@ def signup(data: SignupRequest):
         email=data.email,
         password=data.password,
         handle=data.handle,
-        name=data.name
+        name=data.name,
+        role=data.role
     ) :
         return {"message": "User registered successfully"}
     else:

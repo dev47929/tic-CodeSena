@@ -4,7 +4,7 @@ from fastapi import APIRouter
 
 from app.api.ai_route import router as ai_router
 from app.api.login_route import router as login_router
-# from api.admin_route import router as admin_router
+from app.api.job_route import router as job_router
 
 
 api_router = APIRouter()
@@ -12,4 +12,4 @@ api_router = APIRouter()
 # Include routers
 api_router.include_router(ai_router)
 api_router.include_router(login_router)
-# api_router.include_router(admin_router)
+api_router.include_router(job_router)

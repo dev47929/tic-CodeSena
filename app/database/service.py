@@ -1,6 +1,8 @@
 #app/database/service.py
 import hashlib
-from app.database.models import User
+from app.schemas.set_03 import JobCreate
+from app.database.models import User , Job
+
 from app.database.db import SessionLocal
 from fastapi import HTTPException
 from app.database.getuser import get_user , get_user_v2
@@ -11,14 +13,15 @@ def simple_hash(password: str) -> str:
 def verify_hash(password: str, stored_hash: str) -> bool:
     return simple_hash(password) == stored_hash
 
-def create_user(email: str, password: str, handle: str, name: str = None, phone: str = None ) :
+def create_user(email: str, password: str, handle: str, role :str ,name: str = None, phone: str = None ) :
     with SessionLocal() as db:
         user = User(
             email=email,
             handle = handle.strip().lower(),
             name=name,
             phone=phone,
-            password_hash=simple_hash(password)
+            password_hash=simple_hash(password),
+            role=role
         )
         db.add(user)
         db.commit()
@@ -34,9 +37,9 @@ def authenticate_user(password: str , id : int = None,email : str = None , handl
             user = get_user_v2(handle=handle)
 
         if not user:
-            return HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(status_code=404, detail="User not found")
         if not verify_hash(password, user["password_hash"]):
-            return HTTPException(status_code=401, detail="Invalid password")
+            raise HTTPException(status_code=401, detail="Invalid password")
         
         return user
     
@@ -93,3 +96,31 @@ def set_avatar(id: int, avatar_url: str):
         db.query(User).filter(User.id == id).update({"avatar_url": avatar_url})
         db.commit()
         return {"Status": "Success"}
+    
+
+# app/crud/job.py
+
+def create_job(job_data: JobCreate, id: int):
+    with SessionLocal() as db:
+
+        job = Job(
+            user_id=id,
+            title=job_data.title,
+            description=job_data.description,
+            job_type=job_data.job_type,
+            skills=job_data.skills,
+            company=job_data.company,
+            location=job_data.location,
+            salary=job_data.salary,
+        )
+
+        db.add(job)
+        db.commit()
+        db.refresh(job)
+
+        return job
+
+def get_all_jobs():
+    with SessionLocal() as db:
+        jobs = db.query(Job).order_by(Job.posted_at.desc()).all()
+        return jobs

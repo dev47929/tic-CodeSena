@@ -10,7 +10,9 @@ from sqlalchemy import (
     Text,
     TIMESTAMP,
     ForeignKey,
-    Integer
+    Integer,
+    Enum,
+    ARRAY
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
@@ -35,6 +37,7 @@ class User(Base):
 
     email = Column(String(255), unique=True, nullable=True, index=True)
     phone = Column(String(20), unique=True, nullable=True, index=True)
+    role = Column(String(20), default="user")
 
     is_email_verified = Column(Boolean, default=False)
     is_phone_verified = Column(Boolean, default=False)
@@ -73,3 +76,28 @@ class OTPCode(Base):
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
 
     user = relationship("User")
+
+
+class Job(Base):
+    __tablename__ = "jobs"
+
+    # Primary Key
+    ref = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+
+    # Basic Info
+    title = Column(String(255), nullable=False)
+    description = Column(Text, nullable=False)
+
+    job_type = Column(String(255), nullable=True)
+    skills = Column(ARRAY(String), nullable=True)
+    company = Column(String(255), nullable=True)
+
+    # Location
+    location = Column(String(255), nullable=True)
+    salary = Column(Integer, nullable=True)
+
+    posted_at = Column(TIMESTAMP, default=datetime.utcnow)
+    user = relationship("User")
+
+    

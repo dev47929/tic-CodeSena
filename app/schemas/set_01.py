@@ -7,7 +7,7 @@ class SignupRequest(BaseModel):
     password: str = Field(min_length=6, max_length=60)
     handle: str = Field(min_length=2, max_length=16)
     name: str = Field(min_length=2, max_length=60)
-    phone: Optional[str] = Field(default=None, min_length=10, max_length=10)
+    role: str = Field(min_length=2, max_length=60)
 
 
 class LoginRequest(BaseModel):
