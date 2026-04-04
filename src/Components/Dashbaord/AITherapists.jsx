@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
     Video, Phone, Star, BellOff, MoreHorizontal, 
-    Check, CheckCheck, Smile, Paperclip, Send, Brain, Volume2, Mic, MicOff
+    Check, CheckCheck, Smile, Paperclip, Send, Brain, Volume2, Mic, MicOff, Globe
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -40,6 +40,7 @@ export default function AITherapists({ isDarkMode = true }) {
     const { token } = useAuth();
     const [inputText, setInputText] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [language, setLanguage] = useState('English');
 
     // Auto-Scroll & Voice State
     const messagesEndRef = useRef(null);
@@ -83,7 +84,7 @@ export default function AITherapists({ isDarkMode = true }) {
         const recognition = new SpeechRecognition();
         recognition.continuous = true;
         recognition.interimResults = true;
-        recognition.lang = 'en-US';
+        recognition.lang = language === 'Hindi' ? 'hi-IN' : 'en-US';
         recognition.maxAlternatives = 1;
         recognitionRef.current = recognition;
 
@@ -159,7 +160,7 @@ export default function AITherapists({ isDarkMode = true }) {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 },
-                body: JSON.stringify({ message: currentInput })
+                body: JSON.stringify({ message: `${currentInput} (Reply in ${language})` })
             });
 
             if (!response.ok) throw new Error("Backend response error");
@@ -193,17 +194,45 @@ export default function AITherapists({ isDarkMode = true }) {
         }
     };
 
+    // Pre-load voices for TTS
+    const [availableVoices, setAvailableVoices] = useState([]);
+
+    useEffect(() => {
+        const loadVoices = () => {
+            const v = window.speechSynthesis.getVoices();
+            setAvailableVoices(v);
+        };
+        loadVoices();
+        if (window.speechSynthesis.onvoiceschanged !== undefined) {
+            window.speechSynthesis.onvoiceschanged = loadVoices;
+        }
+    }, []);
+
     // Native Browser TTS Audio Pipeline
     const handleTTS = (text) => {
         if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel(); // Stop current speech if overlapping
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 0.95; // Slightly calmer tempo for therapist
+            utterance.lang = language === 'Hindi' ? 'hi-IN' : 'en-US';
+            utterance.rate = 0.9; // Calm, therapeutic tempo
+            utterance.pitch = 1.1; // Slightly higher pitch for female-coded persona
             
-            // Attempt female voice priority
-            const voices = window.speechSynthesis.getVoices();
-            const femaleVoice = voices.find(v => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('samantha'));
-            if (femaleVoice) utterance.voice = femaleVoice;
+            // Comprehensive check for high-quality female/language-specific voices
+            const femaleKeywords = language === 'Hindi' 
+                ? ['hindi', 'hi-in', 'kalpana'] 
+                : ['female', 'samantha', 'zira', 'victoria', 'google uk english female', 'microsoft zira', 'hazel', 'siri', 'moira'];
+            
+            const femaleVoice = availableVoices.find(v => 
+                femaleKeywords.some(key => v.name.toLowerCase().includes(key)) ||
+                (language === 'Hindi' && v.lang.includes('hi-IN'))
+            );
+
+            if (femaleVoice) {
+                utterance.voice = femaleVoice;
+            } else {
+                // Fallback to first available voice if no keyword match
+                console.warn("Targeted female voice not found, using system default.");
+            }
             
             window.speechSynthesis.speak(utterance);
         } else {
@@ -224,7 +253,20 @@ export default function AITherapists({ isDarkMode = true }) {
                     </div>
                     <div className="flex flex-col text-left">
                         <span className={`font-semibold text-sm ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Aadya AI</span>
-                        <span className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>Active 24m ago</span>
+                        <div className="flex items-center gap-2">
+                            <span className={`text-[10px] ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>Active 24m ago</span>
+                            <div className="w-1 h-1 rounded-full bg-gray-500"></div>
+                            <button 
+                                onClick={() => setLanguage(l => l === 'English' ? 'Hindi' : 'English')}
+                                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-xs font-bold uppercase transition-all shadow-sm ${
+                                    isDarkMode 
+                                    ? 'border-[#333] bg-[#1a1a1a] text-[#c47ea8] hover:border-[#c47ea8]/50 hover:bg-[#222]' 
+                                    : 'border-[#fce8f0] bg-[#fff0f5] text-[#c47ea8] hover:border-[#c47ea8] hover:bg-[#fdeef5]'
+                                }`}
+                            >
+                                <Globe size={14} /> {language}
+                            </button>
+                        </div>
                     </div>
                 </div>
 
