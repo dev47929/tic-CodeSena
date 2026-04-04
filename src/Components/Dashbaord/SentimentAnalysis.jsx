@@ -41,11 +41,33 @@ export default function SentimentAnalysis({ isDarkMode = true }) {
             id: 'support',
             title: 'Social Support',
             question: 'Do you feel you have a reliable support system you can talk to when things get tough?',
-            options: [
+            options: [ 
                 { label: 'Yes, fully supported', score: 0 },
                 { label: 'Somewhat, occasionally', score: 1 },
                 { label: 'Rarely', score: 2 },
                 { label: 'No, I feel isolated', score: 3 }
+            ]
+        },
+        {
+            id: 'focus',
+            title: 'Cognitive Focus',
+            question: 'How much difficulty have you had recently in concentrating on tasks, such as reading, working, or making decisions?',
+            options: [
+                { label: 'None at all', score: 0 },
+                { label: 'A little difficulty', score: 1 },
+                { label: 'Moderate difficulty', score: 2 },
+                { label: 'Severe difficulty', score: 3 }
+            ]
+        },
+        {
+            id: 'anxiety',
+            title: 'Anxiety Levels',
+            question: 'Over the last 2 weeks, how often have you felt dangerously nervous, anxious, or constantly on edge?',
+            options: [
+                { label: 'Not at all', score: 0 },
+                { label: 'Several days', score: 1 },
+                { label: 'More than half the days', score: 2 },
+                { label: 'Nearly every day', score: 3 }
             ]
         }
     ];

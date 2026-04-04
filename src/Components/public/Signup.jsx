@@ -6,7 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import * as faceapi from 'face-api.js';
 
 export default function Signup() {
-    const [credentials, setCredentials] = useState({ name: '', username: '', email: '', password: '', role: '' });
+    const [credentials, setCredentials] = useState({ name: '', username: '', email: '', password: '', role: 'user' });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
@@ -27,7 +27,7 @@ export default function Signup() {
                     password: credentials.password,
                     handle: credentials.username,
                     name: credentials.name,
-                    role: credentials.role,
+                    role: credentials.role || 'user',
                 })
             });
 
@@ -97,7 +97,7 @@ export default function Signup() {
             if (modelsLoaded) {
                 const detections = await faceapi.detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions()).withAgeAndGender();
                 if (detections) {
-                    const assignedRole = detections.gender === 'female' ? 'womenlancer' : 'user';
+                    const assignedRole = detections.gender === 'female' ? 'womanlancer' : 'user';
                     setFaceStatus(`Verified as ${detections.gender}`);
                     setCredentials(prev => ({ ...prev, role: assignedRole }));
                 } else {
@@ -129,11 +129,10 @@ export default function Signup() {
 
                 const data = await response.json();
                 
-                // Fallback attempt to parse role if external API returns a direct gender match and local models failed to fire
                 if (!credentials.role && data) {
                     const strData = JSON.stringify(data).toLowerCase();
                     if (strData.includes('female')) {
-                        setCredentials(prev => ({ ...prev, role: 'womenlancer' }));
+                        setCredentials(prev => ({ ...prev, role: 'womanlancer' }));
                     } else if (strData.includes('male')) {
                         setCredentials(prev => ({ ...prev, role: 'user' }));
                     }

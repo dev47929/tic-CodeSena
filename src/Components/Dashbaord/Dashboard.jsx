@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import {
     Bell, Settings, ChevronDown, HeartPulse,
     MessageSquare, Users, Briefcase, Menu, LogOut, TerminalSquare,
-    Sun, Moon
+    Sun, Moon, Landmark
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import PixelSnow from '../Generic/Snowfall';
 import AITherapists from './AITherapists';
 import SentimentAnalysis from './SentimentAnalysis';
+import Freelance from './Freelance';
+import JobsForHer from './JobsForHer';
+import GovernmentSchemes from './Community';
 import { useAuth } from '../../context/AuthContext';
 
 export default function Dashboard() {
@@ -47,12 +50,22 @@ export default function Dashboard() {
         }
     }, [token, user, setUser]);
 
+    useEffect(() => {
+        // Enforce active tab validation based on securely fetched role.
+        if (user && user.role?.toLowerCase()?.trim() !== 'womanlancer') {
+            if (activeTab === 'AI Therapist' || activeTab === 'Government Schemes') {
+                setActiveTab('Sentiment Analysis');
+            }
+        }
+    }, [user, activeTab]);
+
     const sidebarTabs = [
-        { name: 'AI Therapist', icon: <HeartPulse size={18} /> },
-        { name: 'Sentiment Analysis', icon: <MessageSquare size={18} />, restrictedToRole: 'user' },
-        { name: 'Community', icon: <Users size={18} />, restrictedToRole: 'user' },
+        { name: 'AI Therapist', icon: <HeartPulse size={18} />, requiresWomanlancer: true },
+        { name: 'Sentiment Analysis', icon: <MessageSquare size={18} /> },
+        { name: 'Government Schemes', icon: <Landmark size={18} />, requiresWomanlancer: true },
+        { name: 'Jobs For Her', icon: <Briefcase size={18} /> },
         { name: 'Freelance', icon: <Briefcase size={18} /> },
-    ].filter(tab => tab.restrictedToRole !== user?.role);
+    ].filter(tab => !tab.requiresWomanlancer || user?.role?.toLowerCase()?.trim() === 'womanlancer');
 
     return (
         <div className={`flex h-screen ${isDarkMode ? 'bg-[#0a0a0a] text-white' : 'bg-[#fff0f5] text-[#1a1025]'} font-sans relative overflow-hidden transition-colors duration-500`}>
@@ -184,6 +197,12 @@ export default function Dashboard() {
                         <AITherapists isDarkMode={isDarkMode} />
                     ) : activeTab === 'Sentiment Analysis' ? (
                         <SentimentAnalysis isDarkMode={isDarkMode} />
+                    ) : activeTab === 'Government Schemes' ? (
+                        <GovernmentSchemes isDarkMode={isDarkMode} />
+                    ) : activeTab === 'Jobs For Her' ? (
+                        <JobsForHer isDarkMode={isDarkMode} />
+                    ) : activeTab === 'Freelance' ? (
+                        <Freelance isDarkMode={isDarkMode} />
                     ) : (
                         <div className={`w-full h-full rounded-2xl border border-dashed flex flex-col items-center justify-center text-center shadow-lg transition-colors duration-500 ${isDarkMode ? 'border-[#c47ea8]/30 bg-[#0f0f0f]/40 backdrop-blur-md hover:bg-[#0f0f0f]/60' : 'border-[#c47ea8]/20 bg-white/50 backdrop-blur-md hover:bg-white/80'}`}>
                             <TerminalSquare size={48} className="text-[#c47ea8]/60 mb-4" />
