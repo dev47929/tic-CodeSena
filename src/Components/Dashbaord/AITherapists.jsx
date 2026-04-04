@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
     Video, Phone, Star, BellOff, MoreHorizontal, 
-    Check, CheckCheck, Smile, Paperclip, Send, Brain, Volume2
+    Check, CheckCheck, Smile, Paperclip, Send, Brain, Volume2, Mic, MicOff
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -40,6 +40,100 @@ export default function AITherapists({ isDarkMode = true }) {
     const { token } = useAuth();
     const [inputText, setInputText] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+
+    // Auto-Scroll & Voice State
+    const messagesEndRef = useRef(null);
+    const [isListening, setIsListening] = useState(false);
+    const recognitionRef = useRef(null);
+
+    // Auto-scroll hook
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
+
+    // Speech-to-text: create fresh instance on each toggle for reliability
+    const [interimText, setInterimText] = useState('');
+
+    // Cleanup on unmount
+    useEffect(() => {
+        return () => {
+            if (recognitionRef.current) {
+                try { recognitionRef.current.abort(); } catch (_) {}
+            }
+        };
+    }, []);
+
+    const toggleListening = () => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+            alert('Voice transcription is not supported by this browser. Please use Chrome or Edge.');
+            return;
+        }
+
+        // If already listening, stop
+        if (isListening) {
+            try { recognitionRef.current?.abort(); } catch (_) {}
+            setIsListening(false);
+            setInterimText('');
+            return;
+        }
+
+        // Create a fresh instance every time to avoid stale state issues
+        const recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+        recognition.maxAlternatives = 1;
+        recognitionRef.current = recognition;
+
+        recognition.onstart = () => {
+            setIsListening(true);
+            setInterimText('');
+        };
+
+        recognition.onresult = (event) => {
+            let interim = '';
+            let finalTranscript = '';
+
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const result = event.results[i];
+                if (result.isFinal) {
+                    finalTranscript += result[0].transcript;
+                } else {
+                    interim += result[0].transcript;
+                }
+            }
+
+            if (finalTranscript) {
+                setInputText(prev => (prev + ' ' + finalTranscript).trim());
+                setInterimText('');
+            } else {
+                setInterimText(interim);
+            }
+        };
+
+        recognition.onerror = (e) => {
+            console.error('Speech Recognition Error:', e.error);
+            setIsListening(false);
+            setInterimText('');
+            if (e.error === 'not-allowed') {
+                alert('Microphone access was denied. Please allow microphone permissions and try again.');
+            }
+        };
+
+        recognition.onend = () => {
+            setIsListening(false);
+            setInterimText('');
+        };
+
+        try {
+            recognition.start();
+        } catch (err) {
+            console.error('Could not start speech recognition:', err);
+            setIsListening(false);
+        }
+    };
 
     const handleSend = async () => {
         if (!inputText.trim() || !token) return;
@@ -215,22 +309,51 @@ export default function AITherapists({ isDarkMode = true }) {
                         </div>
                     );
                 })}
+                <div ref={messagesEndRef} />
             </div>
 
             {/* Input Area */}
             <div className={`p-4 border-t backdrop-blur-md shrink-0 transition-colors duration-500 ${isDarkMode ? 'border-[#262626]/60 bg-[#111111]/80' : 'border-gray-200 bg-white/70 shadow-[0_-4px_20px_rgba(0,0,0,0.02)]'}`}>
-                <div className={`flex items-center gap-3 rounded-full py-2 px-4 transition-colors duration-500 ${isDarkMode ? 'bg-[#1A1A1A] border border-[#333]/60 shadow-inner focus-within:border-gray-500' : 'bg-white border border-gray-200 shadow-sm focus-within:border-gray-400 focus-within:shadow-md'}`}>
+                {/* Listening indicator bar */}
+                {isListening && (
+                    <div className="flex items-center gap-2 mb-2 px-2">
+                        <div className="flex gap-0.5 items-end h-4">
+                            {[1,2,3,4,5].map(i => (
+                                <div key={i} className="w-0.5 bg-red-400 rounded-full animate-pulse"
+                                    style={{ height: `${Math.random() * 10 + 6}px`, animationDelay: `${i * 0.1}s` }}
+                                />
+                            ))}
+                        </div>
+                        <span className="text-xs font-medium text-red-400">Listening... speak now</span>
+                        {interimText && <span className="text-xs text-gray-400 italic truncate max-w-[200px]">"{interimText}"</span>}
+                    </div>
+                )}
+                <div className={`flex items-center gap-3 rounded-full py-2 px-4 transition-all duration-300 ${
+                    isListening
+                        ? 'border-2 border-red-400 shadow-[0_0_12px_rgba(239,68,68,0.25)]'
+                        : isDarkMode
+                            ? 'bg-[#1A1A1A] border border-[#333]/60 shadow-inner focus-within:border-gray-500'
+                            : 'bg-white border border-gray-200 shadow-sm focus-within:border-gray-400 focus-within:shadow-md'
+                } ${isDarkMode ? 'bg-[#1A1A1A]' : 'bg-white'}`}>
                     <Paperclip size={18} className={`cursor-pointer transition-colors ${isDarkMode ? 'text-gray-500 hover:text-white' : 'text-gray-400 hover:text-gray-800'}`} />
                     <input 
                         type="text" 
                         value={inputText}
                         onChange={(e) => setInputText(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                        placeholder={isLoading ? "AI is typing..." : "Type your message here..."} 
+                        placeholder={
+                            isLoading ? "AI is typing..." :
+                            isListening ? (interimText || "Listening... speak now") :
+                            "Type your message or use the mic..."
+                        }
                         disabled={isLoading}
                         className={`flex-1 bg-transparent border-none outline-none text-sm px-2 ${isDarkMode ? 'text-gray-200 placeholder-gray-600' : 'text-gray-800 placeholder-gray-400'}`}
                     />
-                    <Smile size={18} className={`cursor-pointer transition-colors ${isDarkMode ? 'text-gray-500 hover:text-white' : 'text-gray-400 hover:text-gray-800'}`} />
+                    
+                    <div onClick={toggleListening} title={isListening ? "Stop listening" : "Start voice input"} className={`cursor-pointer transition-all duration-300 p-1 rounded-full ${isListening ? 'text-red-500 bg-red-50 scale-110' : isDarkMode ? 'text-gray-500 hover:text-white' : 'text-gray-400 hover:text-gray-800'}`}>
+                        {isListening ? <Mic size={18} /> : <MicOff size={18} />}
+                    </div>
+
                     <div 
                         onClick={handleSend} 
                         className={`${isLoading ? 'bg-gray-500 cursor-wait' : 'bg-[#c47ea8] cursor-pointer hover:bg-[#a9668e]'} p-1.5 rounded-full transition-colors shadow-sm ml-1`}

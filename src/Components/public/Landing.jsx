@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -24,8 +24,9 @@ const galleryImages = [
 const FeatureCard = ({ icon: Icon, title, image, glowHSL, delay }) => (
     <motion.div
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.55, delay }}
         className="w-full flex"
     >
         <BorderGlow
@@ -69,6 +70,44 @@ export default function Landing() {
 
     return (
         <div className="min-h-screen bg-white">
+            <style>{`
+                @keyframes floatOrb {
+                    0%, 100% { transform: translateY(0px) scale(1); }
+                    50% { transform: translateY(-22px) scale(1.04); }
+                }
+                @keyframes floatOrbSlow {
+                    0%, 100% { transform: translateY(0px) translateX(0px); }
+                    33% { transform: translateY(-14px) translateX(8px); }
+                    66% { transform: translateY(10px) translateX(-6px); }
+                }
+                @keyframes shimmer {
+                    0% { background-position: -200% center; }
+                    100% { background-position: 200% center; }
+                }
+                @keyframes fadeSlideUp {
+                    from { opacity: 0; transform: translateY(16px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes pulseRing {
+                    0%, 100% { box-shadow: 0 0 0 0 rgba(196,126,168,0.15); }
+                    50% { box-shadow: 0 0 0 18px rgba(196,126,168,0); }
+                }
+                .hero-orb-1 {
+                    animation: floatOrb 7s ease-in-out infinite;
+                }
+                .hero-orb-2 {
+                    animation: floatOrbSlow 11s ease-in-out infinite;
+                }
+                .hero-orb-3 {
+                    animation: floatOrb 9s ease-in-out infinite reverse;
+                }
+                .stat-card-animate {
+                    animation: fadeSlideUp 0.6s ease-out both;
+                }
+                .pulse-ring {
+                    animation: pulseRing 2.5s ease-in-out infinite;
+                }
+            `}</style>
  
              {/* ══════════════════════════════════════════
            NAVBAR
@@ -242,6 +281,26 @@ export default function Landing() {
                     pointerEvents: 'none',
                 }} />
 
+                {/* Subtle floating ambient orbs */}
+                <div className="hero-orb-1" style={{
+                    position: 'absolute', top: '10%', left: '5%',
+                    width: 320, height: 320, borderRadius: '50%',
+                    background: 'radial-gradient(circle, rgba(196,126,168,0.12) 0%, transparent 70%)',
+                    pointerEvents: 'none', zIndex: 0
+                }} />
+                <div className="hero-orb-2" style={{
+                    position: 'absolute', top: '55%', right: '8%',
+                    width: 260, height: 260, borderRadius: '50%',
+                    background: 'radial-gradient(circle, rgba(245,214,228,0.2) 0%, transparent 70%)',
+                    pointerEvents: 'none', zIndex: 0
+                }} />
+                <div className="hero-orb-3" style={{
+                    position: 'absolute', bottom: '5%', left: '38%',
+                    width: 180, height: 180, borderRadius: '50%',
+                    background: 'radial-gradient(circle, rgba(196,126,168,0.08) 0%, transparent 70%)',
+                    pointerEvents: 'none', zIndex: 0
+                }} />
+
 
                 {/* ── 2-column grid wrapper ── */}
                 <div
@@ -264,6 +323,16 @@ export default function Landing() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.65 }}
                     >
+                        <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.1 }}
+                            style={{ marginBottom: 18 }}
+                        >
+                            <span style={{ display: 'inline-block', background: 'linear-gradient(135deg, #c47ea8, #f5d6e4)', padding: '5px 18px', borderRadius: 99, fontSize: 12, fontWeight: 700, color: '#2d1f3d', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                                ✦ Women-First Platform
+                            </span>
+                        </motion.div>
                         <h1
                             style={{
                                 fontFamily: "'Playfair Display', Georgia, serif",
@@ -275,8 +344,8 @@ export default function Landing() {
                                 marginBottom: 24,
                             }}
                         >
-                            Small daily rituals.<br />
-                            Real, lasting change.
+                            <motion.span style={{ display: 'block' }} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}>Small daily rituals.</motion.span>
+                            <motion.span style={{ display: 'block' }} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4 }}>Real, lasting change.</motion.span>
                         </h1>
 
                         <p
@@ -341,8 +410,8 @@ export default function Landing() {
                     {/* ── RIGHT: CardSwap carousel ── */}
                     <motion.div
                         initial={{ opacity: 0, x: 24 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.65, delay: 0.15 }}
+                        animate={{ opacity: 1, x: 0, y: [0, -10, 0] }}
+                        transition={{ duration: 0.65, delay: 0.15, y: { duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 1 } }}
                         style={{
                             position: 'relative',
                             height: 520,
@@ -633,6 +702,192 @@ export default function Landing() {
                             </div>
                         </div>
                     </motion.div>
+                </div>
+            </section>
+
+            {/* ══════════════════════════════════════════
+          FEATURES DEEP DIVE
+      ══════════════════════════════════════════ */}
+            <section style={{ background: 'linear-gradient(180deg, #fff0f5 0%, #ffffff 100%)', padding: '100px 32px' }}>
+                <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+                    
+                    {/* Section Header */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 24 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6 }}
+                        style={{ textAlign: 'center', marginBottom: 72 }}
+                    >
+                        <span style={{ display: 'inline-block', background: 'linear-gradient(135deg, #f5d6e4, #c47ea8)', padding: '6px 20px', borderRadius: 99, fontSize: 12, fontWeight: 700, color: '#2d1f3d', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 20 }}>
+                            Everything You Need
+                        </span>
+                        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(32px, 5vw, 56px)', fontWeight: 700, color: '#2d1f3d', lineHeight: 1.2, marginBottom: 20 }}>
+                            Built for every woman,<br /><em style={{ fontWeight: 400, color: '#c47ea8' }}>at every stage.</em>
+                        </h2>
+                        <p style={{ fontSize: 18, color: '#7a6b89', maxWidth: 560, margin: '0 auto', lineHeight: 1.7 }}>
+                            AadyaCircle is a unified platform combining mental wellness, professional growth, government support, and a thriving community — all in one safe space.
+                        </p>
+                    </motion.div>
+
+                    {/* Feature Cards Grid */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 32 }}>
+                        {[
+                            {
+                                icon: Brain,
+                                color: '#c47ea8',
+                                bg: 'linear-gradient(135deg, #fff0f5, #fce8f0)',
+                                title: 'AI Therapist',
+                                subtitle: 'Your 24/7 Emotional Companion',
+                                description: 'Talk freely with an empathetic AI therapist trained to support women through stress, anxiety, burnout, and emotional overwhelm. Speak via voice or type — Aadya is always listening without judgment.',
+                                badges: ['Voice-to-Text', 'Text-to-Speech', 'Secure & Private']
+                            },
+                            {
+                                icon: Activity,
+                                color: '#9b59b6',
+                                bg: 'linear-gradient(135deg, #f8f0ff, #f0e6ff)',
+                                title: 'Sentiment Analysis',
+                                subtitle: 'Understand Your Inner State',
+                                description: 'Complete our clinically inspired 6-question assessment covering mood, stress, sleep, social support, cognitive focus, and anxiety. Receive a personalized wellness score and actionable guidance.',
+                                badges: ['6-Domain Analysis', 'Wellness Score', 'Guided Insights']
+                            },
+                            {
+                                icon: Briefcase,
+                                color: '#e67e22',
+                                bg: 'linear-gradient(135deg, #fff8f0, #ffeedc)',
+                                title: 'Jobs For Her',
+                                subtitle: 'Opportunities Curated for Women',
+                                description: 'Browse verified full-time, part-time, freelance, and internship listings posted within the AadyaCircle network. Filter by role, skill, and salary — and apply with confidence.',
+                                badges: ['Verified Listings', 'Skill Filters', 'Direct Apply']
+                            },
+                            {
+                                icon: Sparkles,
+                                color: '#27ae60',
+                                bg: 'linear-gradient(135deg, #f0fff5, #dcfce7)',
+                                title: 'Freelancer Directory',
+                                subtitle: 'Showcase Your Expertise',
+                                description: 'Create your womanlancer profile and get discovered by recruiters and founders within the network. Share your bio, skills, and rate — and let opportunities come to you.',
+                                badges: ['Profile Listing', 'Skill Showcase', 'Hourly & Salary']
+                            },
+                            {
+                                icon: Landmark,
+                                color: '#2980b9',
+                                bg: 'linear-gradient(135deg, #f0f8ff, #dbeafe)',
+                                title: 'Government Schemes',
+                                subtitle: 'Know Your Rights & Benefits',
+                                description: 'Explore India\'s top welfare programs for women including Mudra Yojana, Stand Up India, Beti Bachao, and WEP — all curated in one place with eligibility info and direct portal links.',
+                                badges: ['6+ Schemes', 'Eligibility Info', 'Direct Links']
+                            },
+                            {
+                                icon: Shield,
+                                color: '#c47ea8',
+                                bg: 'linear-gradient(135deg, #fff0f5, #fce8f0)',
+                                title: 'Role-Based Access',
+                                subtitle: 'Personalised From Day One',
+                                description: 'AadyaCircle uses biometric facial recognition to intelligently assign your role at signup. Womanlancers get access to all features, while every user gets a safe, personalised experience.',
+                                badges: ['Face Verification', 'Auto Role Assign', 'Privacy First']
+                            },
+                        ].map((feature, idx) => {
+                            const Icon = feature.icon;
+                            return (
+                                <motion.div
+                                    key={idx}
+                                    initial={{ opacity: 0, y: 32 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ duration: 0.5, delay: idx * 0.08 }}
+                                    style={{
+                                        background: feature.bg,
+                                        borderRadius: 28,
+                                        padding: '36px 32px',
+                                        border: '1px solid rgba(196,126,168,0.15)',
+                                        cursor: 'default',
+                                        transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                                    }}
+                                    whileHover={{ y: -6, boxShadow: '0 20px 60px rgba(196,126,168,0.2)' }}
+                                >
+                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 18, marginBottom: 20 }}>
+                                        <div style={{ background: 'white', padding: 14, borderRadius: 16, boxShadow: '0 4px 16px rgba(0,0,0,0.07)', flexShrink: 0 }}>
+                                            <Icon size={26} color={feature.color} />
+                                        </div>
+                                        <div>
+                                            <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 700, color: '#2d1f3d', marginBottom: 4 }}>{feature.title}</h3>
+                                            <p style={{ fontSize: 12, fontWeight: 600, color: feature.color, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{feature.subtitle}</p>
+                                        </div>
+                                    </div>
+
+                                    <p style={{ fontSize: 15, color: '#5a4f6a', lineHeight: 1.75, marginBottom: 24 }}>
+                                        {feature.description}
+                                    </p>
+
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                                        {feature.badges.map((badge, bIdx) => (
+                                            <span key={bIdx} style={{
+                                                background: 'white',
+                                                color: '#4a3f5c',
+                                                fontSize: 11,
+                                                fontWeight: 700,
+                                                padding: '5px 12px',
+                                                borderRadius: 99,
+                                                border: '1px solid rgba(196,126,168,0.25)',
+                                                letterSpacing: '0.05em'
+                                            }}>{badge}</span>
+                                        ))}
+                                    </div>
+                                </motion.div>
+                            );
+                        })}
+                    </div>
+
+                    {/* CTA Banner */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 24 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6, delay: 0.3 }}
+                        style={{
+                            marginTop: 72,
+                            background: 'linear-gradient(135deg, #2d1f3d, #4a3f5c)',
+                            borderRadius: 32,
+                            padding: '56px 48px',
+                            textAlign: 'center',
+                            position: 'relative',
+                            overflow: 'hidden'
+                        }}
+                    >
+                        <div style={{ position: 'absolute', top: -60, right: -60, width: 240, height: 240, borderRadius: '50%', background: 'rgba(196,126,168,0.12)', pointerEvents: 'none' }} />
+                        <div style={{ position: 'absolute', bottom: -40, left: -40, width: 180, height: 180, borderRadius: '50%', background: 'rgba(196,126,168,0.08)', pointerEvents: 'none' }} />
+                        <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(24px, 4vw, 40px)', fontWeight: 700, color: 'white', marginBottom: 16, position: 'relative', zIndex: 1 }}>
+                            Ready to begin your journey?
+                        </h3>
+                        <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.65)', marginBottom: 36, maxWidth: 480, margin: '0 auto 36px', lineHeight: 1.7, position: 'relative', zIndex: 1 }}>
+                            Join thousands of women who have already found their community, their confidence, and their career on AadyaCircle.
+                        </p>
+                        <button
+                            onClick={() => window.location.href = '/signup'}
+                            style={{
+                                background: '#c47ea8',
+                                color: '#1a1025',
+                                border: 'none',
+                                padding: '16px 40px',
+                                borderRadius: 99,
+                                fontSize: 16,
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 10,
+                                transition: 'all 0.25s ease',
+                                position: 'relative',
+                                zIndex: 1
+                            }}
+                            onMouseEnter={e => { e.currentTarget.style.background = '#f5d6e4'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = '#c47ea8'; e.currentTarget.style.transform = 'translateY(0)'; }}
+                        >
+                            Create Your Account <ArrowRight size={18} />
+                        </button>
+                    </motion.div>
+
                 </div>
             </section>
 
