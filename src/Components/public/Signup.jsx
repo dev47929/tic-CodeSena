@@ -6,7 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import * as faceapi from 'face-api.js';
 
 export default function Signup() {
-    const [credentials, setCredentials] = useState({ name: '', username: '', email: '', password: '' });
+    const [credentials, setCredentials] = useState({ name: '', username: '', email: '', password: '', role: '' });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
@@ -27,6 +27,7 @@ export default function Signup() {
                     password: credentials.password,
                     handle: credentials.username,
                     name: credentials.name,
+                    role: credentials.role,
                 })
             });
 
@@ -96,7 +97,7 @@ export default function Signup() {
             if (modelsLoaded) {
                 const detections = await faceapi.detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions()).withAgeAndGender();
                 if (detections) {
-                    const assignedRole = detections.gender === 'female' ? 'Women' : 'Other';
+                    const assignedRole = detections.gender === 'female' ? 'womenlancer' : 'user';
                     setFaceStatus(`Verified as ${detections.gender}`);
                     setCredentials(prev => ({ ...prev, role: assignedRole }));
                 } else {
@@ -109,18 +110,37 @@ export default function Signup() {
             canvas.width = videoRef.current.videoWidth;
             canvas.height = videoRef.current.videoHeight;
             canvas.getContext('2d').drawImage(videoRef.current, 0, 0);
-            const frameBase64 = canvas.toDataURL('image/jpeg');
+            
+            const imageBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg'));
+            
+            const formData = new FormData();
+            formData.append('file', imageBlob, 'capture.jpg');
 
-            // 3. MOCK EXTERNAL API HIT (You can drop your real endpoint here later)
+            // 3. EXTERNAL CLASSIFICATION API HIT
             try {
-                // await fetch('YOUR_API_ENDPOINT_HERE', {
-                //     method: 'POST',
-                //     headers: { 'Content-Type': 'application/json' },
-                //     body: JSON.stringify({ image: frameBase64 })
-                // });
-                console.log("Mock API hit with one frame payload successful!");
+                const response = await fetch('https://ai.totalchaos.online/classify', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                // Fallback attempt to parse role if external API returns a direct gender match and local models failed to fire
+                if (!credentials.role && data) {
+                    const strData = JSON.stringify(data).toLowerCase();
+                    if (strData.includes('female')) {
+                        setCredentials(prev => ({ ...prev, role: 'womenlancer' }));
+                    } else if (strData.includes('male')) {
+                        setCredentials(prev => ({ ...prev, role: 'user' }));
+                    }
+                }
+                                
             } catch (e) {
-                console.log("API request logged.");
+                console.error("Classification Request Failed", e);
             }
 
         } catch (error) {
@@ -230,6 +250,21 @@ export default function Signup() {
                         </p>
 
                         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+                            <div>
+                                <label style={{ display: 'block', fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: 600, color: '#4a3f5c', marginBottom: 8 }}>Assigned Role</label>
+                                <div style={{ position: 'relative' }}>
+                                    <input
+                                        type="text"
+                                        readOnly
+                                        value={credentials.role || 'Pending face verification...'}
+                                        style={{
+                                            width: '100%', padding: '14px 16px', borderRadius: 12, border: '1.5px solid rgba(45,31,61,0.1)',
+                                            background: 'rgba(45,31,61,0.03)', fontFamily: "'Inter', sans-serif", fontSize: 15, color: '#4a3f5c',
+                                            outline: 'none', cursor: 'not-allowed'
+                                        }}
+                                    />
+                                </div>
+                            </div>
                             <div>
                                 <label style={{ display: 'block', fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: 600, color: '#4a3f5c', marginBottom: 8 }}>Full Name</label>
                                 <div style={{ position: 'relative' }}>

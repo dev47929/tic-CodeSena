@@ -3,12 +3,14 @@ import { motion } from 'motion/react';
 import { Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
 import BorderGlow from '../Generic/BorderGlow';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Login() {
     const [credentials, setCredentials] = useState({ email: '', password: '' });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -35,8 +37,17 @@ export default function Login() {
             const data = await response.json();
             console.log("Login successful", data);
 
-            // Redirect to dashboard or landing logic here
-            navigate('/');
+            // Dynamically scan payload for matching token signature
+            const finalToken = data.token || data.access_token || data.jwt || (typeof data === 'string' ? data : null);
+            if (finalToken) {
+                login(finalToken);
+            } else {
+                console.warn("Could not find mapped token identifier in payload", data);
+                if (typeof data === 'object') alert('Login token key mismatch! Incoming payload keys: ' + Object.keys(data).join(', '));
+            }
+
+            // Redirect to dashboard explicitly
+            navigate('/dashboard');
         } catch (err) {
             console.error(err);
             setError(err.message || 'An error occurred during login');

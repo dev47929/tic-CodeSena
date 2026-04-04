@@ -105,20 +105,53 @@ export default function About() {
                     </motion.div>
                 </div>
 
-                {/* Mission Statement */}
+                {/* Final CTA / Stats Section */}
                 <motion.div 
                     initial={{ opacity: 0, scale: 0.95 }} 
                     whileInView={{ opacity: 1, scale: 1 }} 
                     viewport={{ once: true }} 
                     transition={{ duration: 0.6, delay: 0.4 }}
-                    style={{ marginTop: '80px', textAlign: 'center', background: '#2d1f3d', padding: '64px 40px', borderRadius: '32px', color: 'white', position: 'relative', overflow: 'hidden' }}
+                    style={{ marginTop: '80px', textAlign: 'center', background: 'linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%)', padding: '80px 40px', borderRadius: '32px', color: 'white', position: 'relative', overflow: 'hidden' }}
                 >
-                    <div style={{ position: 'absolute', top: -100, right: -100, width: 300, height: 300, background: '#c47ea8', filter: 'blur(100px)', opacity: 0.5, borderRadius: '50%' }} />
-                    <Target size={48} color="#f5d6e4" style={{ margin: '0 auto 24px auto' }} />
-                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '2rem', fontWeight: 700, marginBottom: '24px' }}>Our Mission</h3>
-                    <p style={{ fontSize: '1.3rem', lineHeight: 1.6, color: '#ebd2e1', maxWidth: '800px', margin: '0 auto', fontWeight: 300 }}>
-                        "Our mission is not just to build a platform, but to create a trusted ecosystem where women feel heard, supported, and empowered to grow, succeed, and lead with confidence."
-                    </p>
+                    {/* Dotted Texture Background */}
+                    <div style={{ position: 'absolute', inset: 0, opacity: 0.1, backgroundImage: 'radial-gradient(#ffffff 2px, transparent 2px)', backgroundSize: '32px 32px' }} />
+                    
+                    <div style={{ position: 'relative', zIndex: 10 }}>
+                        <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: '2.5rem', fontWeight: 700, marginBottom: '12px', letterSpacing: '-0.5px' }}>
+                            AadyaCircle: Empowering Women Everywhere
+                        </h2>
+                        <p style={{ fontSize: '1.25rem', color: 'rgba(255,255,255,0.9)', marginBottom: '64px', fontWeight: 400 }}>
+                            Freelance, AadyaAI, Support, Community – All in One Place
+                        </p>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', flexWrap: 'wrap', gap: '32px', marginBottom: '64px' }}>
+                            <div style={{ textAlign: 'center' }}>
+                                <div style={{ fontSize: '3.5rem', fontWeight: 700, marginBottom: '4px', letterSpacing: '-1px' }}>100+</div>
+                                <div style={{ fontSize: '1.1rem', color: 'rgba(255,255,255,0.9)' }}>Opportunities</div>
+                            </div>
+                            <div style={{ textAlign: 'center' }}>
+                                <div style={{ fontSize: '3.5rem', fontWeight: 700, marginBottom: '4px', letterSpacing: '-1px' }}>24/7</div>
+                                <div style={{ fontSize: '1.1rem', color: 'rgba(255,255,255,0.9)' }}>AadyaAI Support</div>
+                            </div>
+                            <div style={{ textAlign: 'center' }}>
+                                <div style={{ fontSize: '3.5rem', fontWeight: 700, marginBottom: '4px', letterSpacing: '-1px' }}>100%</div>
+                                <div style={{ fontSize: '1.1rem', color: 'rgba(255,255,255,0.9)' }}>Strong Community</div>
+                            </div>
+                        </div>
+
+                        <Link to="/signup" style={{ textDecoration: 'none' }}>
+                            <button style={{ 
+                                background: '#111', color: 'white', padding: '16px 40px', borderRadius: '12px', 
+                                border: 'none', fontSize: '1.1rem', fontWeight: 700, cursor: 'pointer',
+                                transition: 'all 0.2s ease', boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
+                            }}
+                            onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(0,0,0,0.4)'; }}
+                            onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.3)'; }}
+                            >
+                                Join AadyaCircle
+                            </button>
+                        </Link>
+                    </div>
                 </motion.div>
             </main>
         </div>

@@ -108,7 +108,7 @@ export default function Landing() {
                         >
                             aadyaCircle
                         </span>
-                    </a>
+                    </a>    
 
                     {/* Divider */}
                     <div style={{ width: 1, height: 22, background: '#d0ccd8', flexShrink: 0 }} className="hidden md:block" />
