@@ -129,6 +129,10 @@ def read_current_user(current_user: dict = Depends(get_current_user)):
     return current_user
 
 
+
+
+
+
 # @router.post("/me/send-otp")
 # def send_otp(current_user: dict = Depends(get_current_user)):
 

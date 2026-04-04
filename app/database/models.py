@@ -26,10 +26,8 @@ from app.database.db import Base
 class User(Base):
     __tablename__ = "users"
 
-    # 🔥 Internal primary key
     id = Column(Integer, primary_key=True, autoincrement=True)
 
-    # 🔥 External/public ID (used in JWT)
     uid = Column(UUID(as_uuid=True), unique=True, index=True, default=uuid.uuid4)
 
     handle = Column(String(20), unique=True, nullable=False, index=True)
@@ -100,4 +98,20 @@ class Job(Base):
     posted_at = Column(TIMESTAMP, default=datetime.utcnow)
     user = relationship("User")
 
-    
+
+
+class Freelancer(Base):
+    __tablename__ = "freelancers"
+
+    ref = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+
+    title = Column(String(255), nullable=False)
+    bio = Column(Text, nullable=True)
+
+    skills = Column(ARRAY(String), nullable=True)
+    hourly_rate = Column(Integer, nullable=True)
+    expected_salary = Column(Integer, nullable=True)
+    posted_at = Column(TIMESTAMP(timezone=True), default=datetime.utcnow, nullable=False)
+
+    user = relationship("User", backref="freelancer", passive_deletes=True)

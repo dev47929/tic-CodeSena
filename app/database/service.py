@@ -1,7 +1,8 @@
 #app/database/service.py
 import hashlib
 from app.schemas.set_03 import JobCreate
-from app.database.models import User , Job
+from app.schemas.set_04 import FreelancerCreate
+from app.database.models import User , Job , Freelancer
 
 from app.database.db import SessionLocal
 from fastapi import HTTPException
@@ -124,3 +125,28 @@ def get_all_jobs():
     with SessionLocal() as db:
         jobs = db.query(Job).order_by(Job.posted_at.desc()).all()
         return jobs
+
+
+def create_freelancer(freelancer_data : FreelancerCreate, id: int):
+    with SessionLocal() as db:
+
+        freelancer = Freelancer(
+            user_id=id,
+            title=freelancer_data.title,
+            bio=freelancer_data.bio,
+            skills=freelancer_data.skills,
+            hourly_rate=freelancer_data.hourly_rate,
+            expected_salary=freelancer_data.expected_salary,
+        )
+
+        db.add(freelancer)
+        db.commit()
+        db.refresh(freelancer)
+
+        return freelancer
+     
+
+def get_all_freelancers():
+    with SessionLocal() as db:
+        freelancers = db.query(Freelancer).order_by(Freelancer.posted_at.desc()).all()
+        return freelancers

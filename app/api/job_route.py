@@ -30,3 +30,4 @@ def create_job_api(
     current_user: dict = Depends(get_current_user)
 ):
     return create_job(job, current_user["id"])
+
