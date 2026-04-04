@@ -3,7 +3,6 @@ import { motion } from 'motion/react';
 import { Mail, Lock, User, AtSign, ArrowRight, Loader2, Camera, Check } from 'lucide-react';
 import BorderGlow from '../Generic/BorderGlow';
 import { Link, useNavigate } from 'react-router-dom';
-import * as faceapi from 'face-api.js';
 
 export default function Signup() {
     const [credentials, setCredentials] = useState({ name: '', username: '', email: '', password: '', role: 'user' });
@@ -49,36 +48,29 @@ export default function Signup() {
 
     // --- FACE API LOGIC ---
     const videoRef = useRef();
-    const [modelsLoaded, setModelsLoaded] = useState(false);
     const [verifying, setVerifying] = useState(false);
     const [faceStatus, setFaceStatus] = useState('Initializing camera...');
 
+    const cameraStreamRef = useRef(null);
+
     useEffect(() => {
-        const loadModels = async () => {
-            try {
-                // Using public github raw CDN for testing without local models
-                const MODEL_URL = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
-                await Promise.all([
-                    faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-                    faceapi.nets.ageGenderNet.loadFromUri(MODEL_URL)
-                ]);
-                setModelsLoaded(true);
-                setFaceStatus('Ready. Look at the camera and click verify.');
-                startVideo();
-            } catch (err) {
-                console.error("Models failed to load", err);
-                setFaceStatus('Ready to capture payload (Models external)');
-                startVideo(); // still start video so we can capture frame
+        startVideo();
+
+        return () => {
+            if (cameraStreamRef.current) {
+                cameraStreamRef.current.getTracks().forEach(track => track.stop());
+                cameraStreamRef.current = null;
             }
         };
-        loadModels();
     }, []);
 
     const startVideo = () => {
         navigator.mediaDevices.getUserMedia({ video: true })
             .then((stream) => { 
+                cameraStreamRef.current = stream;
                 if (videoRef.current) {
                     videoRef.current.srcObject = stream; 
+                    setFaceStatus('Ready. Look at the camera and click verify.');
                 }
             })
             .catch((err) => {
@@ -93,19 +85,7 @@ export default function Signup() {
         setFaceStatus('Analyzing face...');
 
         try {
-            // 1. If models loaded locally, detect Gender using face-api.js
-            if (modelsLoaded) {
-                const detections = await faceapi.detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions()).withAgeAndGender();
-                if (detections) {
-                    const assignedRole = detections.gender === 'female' ? 'womanlancer' : 'user';
-                    setFaceStatus(`Verified as ${detections.gender}`);
-                    setCredentials(prev => ({ ...prev, role: assignedRole }));
-                } else {
-                    setFaceStatus('No face detected. Try again.');
-                }
-            }
-
-            // 2. Capture frame for external API (as requested)
+            // Capture frame for external API verification.
             const canvas = document.createElement('canvas');
             canvas.width = videoRef.current.videoWidth;
             canvas.height = videoRef.current.videoHeight;
@@ -116,7 +96,7 @@ export default function Signup() {
             const formData = new FormData();
             formData.append('file', imageBlob, 'capture.jpg');
 
-            // 3. EXTERNAL CLASSIFICATION API HIT
+            // External classification API hit.
             try {
                 const response = await fetch('https://ai.totalchaos.online/classify', {
                     method: 'POST',
@@ -128,18 +108,23 @@ export default function Signup() {
                 }
 
                 const data = await response.json();
-                
-                if (!credentials.role && data) {
+
+                if (data) {
                     const strData = JSON.stringify(data).toLowerCase();
                     if (strData.includes('female')) {
                         setCredentials(prev => ({ ...prev, role: 'womanlancer' }));
+                        setFaceStatus('Verified as female');
                     } else if (strData.includes('male')) {
                         setCredentials(prev => ({ ...prev, role: 'user' }));
+                        setFaceStatus('Verified as male');
+                    } else {
+                        setFaceStatus('Face captured. Could not determine gender, default role kept.');
                     }
                 }
                                 
             } catch (e) {
                 console.error("Classification Request Failed", e);
+                setFaceStatus('Verification service unavailable. Try again.');
             }
 
         } catch (error) {

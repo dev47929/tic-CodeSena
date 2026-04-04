@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     Bell, Settings, ChevronDown, HeartPulse,
     MessageSquare, Users, Briefcase, Menu, LogOut, TerminalSquare,
@@ -11,17 +11,21 @@ import SentimentAnalysis from './SentimentAnalysis';
 import Freelance from './Freelance';
 import JobsForHer from './JobsForHer';
 import GovernmentSchemes from './Community';
+import ExerciseToImprove from './ExerciseToImprove';
 import { useAuth } from '../../context/AuthContext';
 
 export default function Dashboard() {
-    const { token, user, setUser, logout } = useAuth();
+    const { token, user, setUser, logout, progress } = useAuth();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('AI Therapist');
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [fetchError, setFetchError] = useState(null);
+    const hasFetchedUserRef = useRef(false);
+    const isExerciseUnlocked = Boolean(progress?.unlockedFeatures?.exerciseToImprove);
 
     useEffect(() => {
-        if (token && !user) {
+        if (token && !user && !hasFetchedUserRef.current) {
+            hasFetchedUserRef.current = true;
             fetch("https://app.totalchaos.online/me", {
                 method: "GET",
                 headers: {
@@ -46,6 +50,7 @@ export default function Dashboard() {
             .catch(err => {
                 console.error("Error fetching user data:", err);
                 setFetchError(err.message || String(err));
+                hasFetchedUserRef.current = false;
             });
         }
     }, [token, user, setUser]);
@@ -54,7 +59,8 @@ export default function Dashboard() {
         // Enforce active tab validation based on securely fetched role.
         if (user && user.role?.toLowerCase()?.trim() !== 'womanlancer') {
             if (activeTab === 'AI Therapist' || activeTab === 'Government Schemes') {
-                setActiveTab('Sentiment Analysis');
+                const timeoutId = setTimeout(() => setActiveTab('Sentiment Analysis'), 0);
+                return () => clearTimeout(timeoutId);
             }
         }
     }, [user, activeTab]);
@@ -62,6 +68,7 @@ export default function Dashboard() {
     const sidebarTabs = [
         { name: 'AI Therapist', icon: <HeartPulse size={18} />, requiresWomanlancer: true },
         { name: 'Sentiment Analysis', icon: <MessageSquare size={18} /> },
+        { name: 'Exercise to Improve', icon: <Users size={18} /> },
         { name: 'Government Schemes', icon: <Landmark size={18} />, requiresWomanlancer: true },
         { name: 'Jobs For Her', icon: <Briefcase size={18} /> },
         { name: 'Freelance', icon: <Briefcase size={18} /> },
@@ -197,6 +204,24 @@ export default function Dashboard() {
                         <AITherapists isDarkMode={isDarkMode} />
                     ) : activeTab === 'Sentiment Analysis' ? (
                         <SentimentAnalysis isDarkMode={isDarkMode} />
+                    ) : activeTab === 'Exercise to Improve' ? (
+                        isExerciseUnlocked ? (
+                            <ExerciseToImprove isDarkMode={isDarkMode} />
+                        ) : (
+                            <div className={`w-full h-full rounded-2xl border flex flex-col items-center justify-center text-center shadow-lg transition-colors duration-500 p-8 ${isDarkMode ? 'border-[#c47ea8]/30 bg-[#0f0f0f]/40 backdrop-blur-md' : 'border-[#c47ea8]/20 bg-white/50 backdrop-blur-md'}`}>
+                                <Users size={48} className="text-[#c47ea8]/60 mb-4" />
+                                <h3 className={`text-xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Complete Sentiment Analysis First</h3>
+                                <p className={isDarkMode ? 'text-gray-400 max-w-md mb-6' : 'text-gray-600 max-w-md mb-6'}>
+                                    Exercise to Improve unlocks right after you complete the Sentiment Assessment.
+                                </p>
+                                <button
+                                    onClick={() => setActiveTab('Sentiment Analysis')}
+                                    className={`px-5 py-2 rounded-full font-medium border transition-colors ${isDarkMode ? 'bg-[#1F1F1F] text-gray-300 hover:bg-[#2A2A2A] border-[#333]' : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300 shadow-sm'}`}
+                                >
+                                    Go to Sentiment Analysis
+                                </button>
+                            </div>
+                        )
                     ) : activeTab === 'Government Schemes' ? (
                         <GovernmentSchemes isDarkMode={isDarkMode} />
                     ) : activeTab === 'Jobs For Her' ? (
